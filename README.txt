@@ -1,3 +1,13 @@
+# B1-Create Bug (Fully implemented)
+# B2-View Bug List (Fully implemented)
+# B3-Assign to Developer (Started but incomplete)
+    Reason: I believe communication and schedule alignments prevented full implementation. The Assign to developer assignment works properly and has valid tests, the requirement at this point is to create a page that redirects from the MenuUI and accepts bugID and developer to be assigned and then displaying a confirmation or failed to assign message of some sort.
+# B5-Delete Bug (Started but incomplete)
+    Reason: I believe communication and schedule alignments prevented full implementation. The Delete bug function works properly and has valid tests, the requirements at this point is to create a page that redirects from the MenuUI and accepts a bugID to be deleted and then displays a confirmation or failure message of some sort.
+# B6-MenuUI (Started but incomplete)
+    Reason: MenuUI was not innitially on the sprint plan and was added later to allow an entry point into each of our sprint stories, for this reason each persons sprint story needed the MenuUI to be completed before they could implemnet fully. Each person fully created the methods and tests they needed to complete the tasks of their sprint. Assign to developer and Delete bug still need pages that redirect from MenuUI to be fully implemented.
+
+
 Bug status tracker
 
 # Sprint 2 – Bug Tracker Implementation
@@ -78,3 +88,18 @@ Validation: The assigned developer should match the input name after execution.
 Purpose: Confirms that assigning a bug with a valid developer name returns a success message
 
 
+### B2: View Bug List
+# User Story
+As a User, I want to be able to view a list of all bugs so that I can easily track the status of all bugs from one place.
+
+# Acceptance Criteria
+All bugs are added to a list at the time of creation.
+The list can be viewed by the user.
+The list can be sorted by Title or by Status.
+
+# Tests
+1. ViewBugs_SortedByTitle_OrderShouldChange
+This test validates that the order of the seed data bugs changes to be alphabetically sorted by title.
+
+2. ViewBugs_SortedByStatus_OrderShouldChange
+This test validates that the order of the seed data bugs changes to be in order of enum status value (0-3).
