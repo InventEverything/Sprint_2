@@ -1,5 +1,5 @@
 ﻿namespace BugTracker.Core
-{
+{ //test comment
     public class Bug
     {
         public int BugId { get; set; }
