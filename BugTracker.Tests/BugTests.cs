@@ -375,6 +375,18 @@
             Assert.Equal("Bug: 5 has been successfully assigned to developer: paul", result, StringComparer.OrdinalIgnoreCase);
         }
         #endregion
+        [Fact]
+        public void CanAddAttachmentUrl()
+        {
+            // Arrange
+            var bug = new Bug(99, "Attachment", "Test fuctionality of adding attachment url", (int)BugPriority.Medium, (int)BugSeverity.Minor);
+
+            // Act
+            bug.AttachmentUrl = "http://example.com/image.png";
+
+            // Assert
+            Assert.Equal("http://example.com/image.png", bug.AttachmentUrl);
+        }
     }
     public class BugServiceTests
     {

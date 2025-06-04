@@ -9,6 +9,7 @@
         public BugSeverity Severity { get; private set; }
         public BugStatus Status { get; private set; }
         public string? AssignedToDeveloper { get; set; }
+        public string? AttachmentUrl { get; set; }
 
         // Constructor for Bug class, initializes properties and sets default values *
         public Bug(int bugId, string title, string description, int priority, int severity)
