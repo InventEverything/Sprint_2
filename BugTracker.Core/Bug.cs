@@ -11,9 +11,13 @@
         public BugStatus Status { get; private set; }
         public string? AssignedToDeveloper { get; set; }
 
+        public DateTime DateCreated { get; } = DateTime.UtcNow; // Automatically sets the date when bug is created
+        public DateTime? DateClosed { get; private set; } // Nullable: Only sets when bug is closed
+
         // Constructor for Bug class, initializes properties and sets default values *
         public Bug(int bugId, string title, string description, int priority, int severity)
         {
+
             BugPriority newPriority;
             BugSeverity newSeverity;
             if (string.IsNullOrWhiteSpace(title))
@@ -29,6 +33,8 @@
             Severity = newSeverity;
             Status = BugStatus.Open;
             AssignedToDeveloper = null;
+
+            DateClosed = null; // Initialize DateClosed to null when bug is created
         }
       
     #region ** Changing Data Methods **
@@ -44,7 +50,10 @@
                     case BugStatus.Closed:
                         if (Status == BugStatus.InProgress || Status == BugStatus.Pending)
                         {
+                  
                             Status = newStatus;
+
+                            DateClosed = DateTime.UtcNow; // Set the date when bug is closed
                         }
                         break;
                     case BugStatus.InProgress:
@@ -112,7 +121,6 @@
             return ($"Bug: {bug.BugId} has been successfully assigned to developer: {bug.AssignedToDeveloper}");
         }
         #endregion
-
     }
 
     #region ** Enums **

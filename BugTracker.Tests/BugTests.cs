@@ -63,8 +63,9 @@
             var ex = Assert.Throws<ArgumentException>(() => new Bug(1, invalidTitle, "desc", 0, 1));
             Assert.Equal("Title cannot be null, empty, or whitespace.", ex.Message);
         }
+
         #endregion
-        
+
         #region ** UpdateStatus Tests **
 
         [Fact]
