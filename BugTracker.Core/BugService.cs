@@ -10,6 +10,7 @@ namespace BugTracker.Core
     public class BugService
     {
         private readonly List<Bug> _bugs = new List<Bug>(); //Saved bugs in a list
+        private readonly string TZ = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"); // Get the current timezone for display purposes;
 
         public List<Bug> getBugs
         {
