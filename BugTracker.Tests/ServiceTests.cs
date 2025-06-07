@@ -4,7 +4,7 @@
 
     public class ServiceTests
     {
-        [Fact]
+        [Fact] // Checks if after creation of bug that it properly adds to internal list. 
         public void CreateBug_AddsBugToList_WithCorrectDetails()
         {
             // Arrange  
@@ -15,7 +15,7 @@
 
             // Assert  
             Assert.NotNull(bug);
-            Assert.Equal(4, bug.BugId); // Should the 4th bug because 3 bugs are created as seeds by default
+            Assert.Equal(4, bug.BugId); // Should be the 4th bug because 3 bugs are created as seeds by default
             Assert.Equal("Test Title", bug.Title);
             Assert.Equal("Test Description", bug.Description);
             Assert.Equal(BugPriority.High, bug.Priority);
@@ -26,7 +26,7 @@
             Assert.Same(bug, allBugs[3]);
         }
 
-        [Fact]
+        [Fact] // Checks that bugs are assigned the right index after being created.
         public void CreateBug_AssignsIncrementingBugId()
         {
             // Arrange  

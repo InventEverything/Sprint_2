@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace BugTracker.Core
 {
@@ -22,6 +23,7 @@ namespace BugTracker.Core
             _bugService = bugService;
         }
 
+
         // These are injectable callbacks, so we can mock them in tests
         public Action OnCreateBug = () => { /*Console.WriteLine("You chose to Create a Bug.");*/ };
         public Action OnViewBugList = () => { };
@@ -29,13 +31,16 @@ namespace BugTracker.Core
         public Action OnDeleteBug = () => { };
 
 
+        // This method is used to clear the console screen safely for testing purposes
+
+
+
         #region ** Menu **
         public void DisplayMenu(Func<char> inputProvider, bool skipClear = false) // <-- Func<char> is a delegate type that
         {                                                                             // takes a function that returns a char
             do
             {
-                if (!skipClear)
-                { Console.Clear(); } // <-- This allows us to skip the clear screen for testing purposes
+                SafeClear(skipClear); 
                 _output.WriteLine("==========================================");
                 _output.WriteLine("|             BUG TRACKER MENU           |");
                 _output.WriteLine("==========================================");
@@ -54,7 +59,7 @@ namespace BugTracker.Core
                 {
                     case 'C':
                         if (!skipClear) // <-- This is used to skip the clear screen for testing purposes
-                        { CreateBug(); }
+                        { Func<string> stringProvider = () => Console.ReadLine(); CreateBug(stringProvider); }
                         else { OnCreateBug(); }
                         break;
                     case 'V':
@@ -85,12 +90,12 @@ namespace BugTracker.Core
             } while (!skipClear);
         }
         #endregion
+
         #region ** Bug Display **
         public void DisplayBugDetails(Bug bug, bool skipClear = false)
-        { // in "{bug.BugId,-18}|" the "18" means that the text will be aligned and take up 18 characters
+        { // in "{bug.BugId,-18}|" the "18" means the padding(or character alignment from the center) on th which ever side
           // + numbers are right aligned, - numbers are left aligned
-            if (!skipClear)
-            { Console.Clear(); }
+            SafeClear(skipClear); // Clear the console screen if skipClear is false
             _output.WriteLine("==========================================");
             _output.WriteLine("|               BUG  TICKET              |");
             _output.WriteLine("==========================================");
@@ -106,12 +111,13 @@ namespace BugTracker.Core
             {
                 _output.WriteLine("\nPress any key to return to the menu...");
                 Console.ReadKey();
-                DisplayMenu(() => Console.ReadKey().KeyChar); // < -- Is how to call the menu again with reference to the input 
-            }                                                      // provider
-        }  
-        #endregion
+                DisplayMenu(() => Console.ReadKey().KeyChar); // < -- Is how to call the menu again with reference to the  
+            }                                                      // input provider
+        }
 
         #region ** Helper Methods **
+
+        // This method truncates the text to a maximum length and adds "..." if it exceeds that length
         private string Truncate(string text, int maxLength)
         {
             if (text.Length > maxLength)
@@ -119,11 +125,17 @@ namespace BugTracker.Core
                 return text.Substring(0, maxLength - 3) + "...";
             }
             return text;
-        }                                                   
+        }
         #endregion
+        #endregion
+
+
 
         #endregion
         #region ** Create Bug **
+
+        #region ** Original Code (Week 6 Project) **
+        /*
         public void CreateBug()
         {
             Bug bug;
@@ -143,7 +155,7 @@ namespace BugTracker.Core
             { Console.Clear(); }
             _output.WriteLine("What is the bugs priority? (0 = Low, 1 = Medium, 2 = High)");
             string priorityInput = Console.ReadLine();
-            
+
             if (!int.TryParse(priorityInput, out int parsedPriority) || parsedPriority < 0 || parsedPriority > 2)
             {// checks if the input is a number and if it is between 0 and 2
                 // if not, it will return an error message
@@ -153,13 +165,13 @@ namespace BugTracker.Core
 
                 return;
             }
-             int priority = parsedPriority;
+            int priority = parsedPriority;
 
             if (!skipClear)
             { Console.Clear(); }
             _output.WriteLine("What is the bugs severity? (0 = Trivial, 1 = Minor, 2 = Major, 3 = Critical)");
             string severityInput = Console.ReadLine();
-            
+
             if (!int.TryParse(severityInput, out int parsedSeverity) || parsedSeverity < 0 || parsedSeverity > 3)
             {// checks if the input is a number and if it is between 0 and 3
                 // if not, it will return an error message
@@ -172,8 +184,95 @@ namespace BugTracker.Core
 
             bug = _bugService.CreateBug(title, description, priority, severity); // Call the CreateBug method from BugService
             DisplayBugDetails(bug); // Display the bug details
+        } */
+        #endregion
+
+        #region **Refactored Code (Week 7 Project)**
+        public Action OnDisplayMenu = () => { };
+        public Action OnBugDetails = () => { };
+
+        public BugMenuUI(TextWriter output = null, BugService bugService = null)
+        {
+            _output = output ?? Console.Out; // If no output is provided, use the default console output
+            _bugService = bugService ?? new BugService(); // Set the BugService instance
+        }
+
+        // Create a bug using the BugService and display the details
+        public void CreateBug(Func<string> inputProvider, bool skipClear = false)
+        {
+            string title = PromptInput("What is the bug's title?", inputProvider, skipClear);
+            string description = PromptInput("What is the bug's description?", inputProvider, skipClear);
+            int priority = PriorityCatch(inputProvider, skipClear); // Call the PriorityCatch method to get the priority
+            int severity = SeverityCatch(inputProvider, skipClear); // Call the SeverityCatch method to get the severity
+
+            Bug bug = _bugService.CreateBug(title, description, priority, severity); // Call the CreateBug method from BugService
+            SafeDisplayBug(bug, skipClear); // Display the bug details
+        }
+
+        #region **Helper Methods**
+        //A method to catch the and return the priority value from user input
+        public int PriorityCatch(Func<string> inputProvider, bool skipClear = false)
+        {
+            string input;
+            bool isValid = false;
+            int parsedPriority = -1; // Initialize parsedPriority to an invalid value
+
+            do 
+            { 
+                string priorityInput = 
+                    PromptInput("What is the bug's priority? (0 = Low, 1 = Medium, 2 = High)", inputProvider, skipClear);
+                    isValid = int.TryParse(priorityInput, out parsedPriority) && parsedPriority >= 0 && parsedPriority <= 2; 
+            } while (!isValid) ; // Loop until a valid input is provided
+            
+            return parsedPriority; // Return the valid priority value
+        }
+
+        // A method to catch the and return the severity value from user input
+        public int SeverityCatch(Func<string> inputProvider, bool skipClear = false)
+        {
+            string input;
+            bool isValid = false;
+            int parsedSeverity = -1; // Initialize parsedSeverity to an invalid value
+            do
+            {
+                string severityInput = PromptInput(
+                    "What is the bug's severity? (0 = Trivial, 1 = Minor, 2 = Major, 3 = Critical)", 
+                    inputProvider, 
+                    skipClear);
+                isValid = int.TryParse(severityInput, out parsedSeverity) && parsedSeverity >= 0 && parsedSeverity <= 3;
+            } while (!isValid); // Loop until a valid input is provided
+            return parsedSeverity; // Return the valid severity value
+        }
+
+        #region **Private Methods**
+        // This method is used to clear the console screen safely for testing purposes
+        private void SafeClear(bool skipClear)
+        {
+            if (!skipClear)
+            { Console.Clear(); }
+        }
+
+        // Display a prompt message and capture user input
+        private string PromptInput(string message, Func<string> inputProvider, bool skipClear)
+        {
+            SafeClear(skipClear);
+            _output.WriteLine(message);
+            return inputProvider();
+        }
+
+        // Validates pathing of DisplayBugDetails and passes a Mockup for debugging purposes
+        private void SafeDisplayBug(Bug bug, bool skipClear)
+        {
+            if (!skipClear)
+                DisplayBugDetails(bug);
+            else
+                OnBugDetails(); // This is used to call the OnBugDetails action if skipClear is true
         }
         #endregion
+        #endregion
+        #endregion
+        #endregion
+
         #region ** View Bug List **
         public void ViewBugList()
         {

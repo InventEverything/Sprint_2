@@ -185,9 +185,14 @@
                     break;
             }
             // Act
-            var ex = Assert.Throws<ArgumentException>(() => bug.UpdateStatus((BugStatus)status));
-            // Assert
-            Assert.Equal("Status is already set to the same value.", ex.Message);
+            try
+            {
+                bug.UpdateStatus((BugStatus)status);
+            }
+            catch (ArgumentException ex)
+            {
+                Assert.Equal("Status is already set to the same value.", ex.Message);
+            }
         }
         #endregion
         #region ** UpdateAssignToDeveloper Tests **

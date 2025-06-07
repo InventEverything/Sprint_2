@@ -3,7 +3,7 @@ using System.IO;
 
 namespace BugTracker.Tests
 {
- 
+
     using BugTracker.Core;
     using System.Text;
 
@@ -13,7 +13,7 @@ namespace BugTracker.Tests
         private class TestOutput : TextWriter
         {
             public override Encoding Encoding => Encoding.UTF8; // <-- This is the encoding used for the output
-            public StringWriter StringWriter = new StringWriter(); // <-- This is the StringWriter used to capture the output
+            public StringWriter StringWriter = new StringWriter(); // <- This is the StringWriter used to capture the output
             public override void WriteLine(string? value) => StringWriter.WriteLine(value);
             public override void Write(string? value) => StringWriter.Write(value);
         }
@@ -24,10 +24,10 @@ namespace BugTracker.Tests
         {
             // Arrange  
             var sw = new StringWriter(); // Create the writer FIRST
-            var menu = new BugMenuUI(sw); // Inject it here
+            var menu = new BugMenuUI(sw); // Inject the menu here
 
             // Act  
-            menu.DisplayMenu(() => 'X', skipClear: true); // Simulate invalid input  
+            menu.DisplayMenu(() => 'X', skipClear: true); // Simulates invalid input  
 
             // Capture output
             var output = sw.ToString();
@@ -57,11 +57,13 @@ namespace BugTracker.Tests
             // Assert
             Assert.True(createBugCalled);
         }
+
+
         #endregion
 
         #region ** Bug Details Test **
 
-        [Fact]
+        [Fact] //Checks to see that all the proper data from creation of bug shows up
         public void DisplayBugDetails_DisplaysCorrectDetails()
         {
             // Arrange
@@ -116,6 +118,83 @@ namespace BugTracker.Tests
             Assert.Equal(bugs[1].BugId, 3);
             Assert.Equal(bugs[2].BugId, 2);
         }
+        #endregion
+
+        #region **Create Bug UI Tests**
+        [Fact]
+        public void CreateBug_WithValidInput_DisplaysAllQuestions()
+        {
+            //Arrange
+           var sw = new StringWriter();
+            var testBugService = new BugService(); // Assuming you have a BugService that handles bug creation
+            var menu = new BugMenuUI(sw, testBugService); // Assumes constructor _output and bugService are set up correctly
+
+            //Mock the CreateBug method to simulate user input
+            var inputs = new Queue<string>(new[]
+            {
+                "Test Bug",             // title 
+                "This is a test bug",   // description
+                "1",                    // priority
+                "1",                    // severity
+            });
+
+            Func<string> inputProvider = () => inputs.Dequeue(); // Mock input provider
+
+            //Act
+            menu.CreateBug(inputProvider, skipClear: true);
+            var output = sw.ToString(); // Capture output
+
+            //Assert
+            Assert.Contains("What is the bug's title?", output);
+            Assert.Contains("What is the bug's description?", output);
+            Assert.Contains("What is the bug's priority?", output);
+            Assert.Contains("What is the bug's severity?", output);
+        }
+
+        [Theory]
+        [InlineData(new[] { "abc", "5", "0" }, 0)] // Invalid, Invalid, Valid
+        [InlineData(new[] { "-1", "3", "1" }, 1)]  // Invalid, Invalid, Valid
+        [InlineData(new[] { "1" }, 1)]            // First try valid
+        [InlineData(new[] { "2", "0", "1" }, 2)]  // First valid is 2
+        public void PriorityCatch_WithVariousInputs_ReturnsValidPriority(string[] simulatedInputs, int expected)
+        {
+            // Arrange
+            var sw = new StringWriter();
+            var menu = new BugMenuUI(sw);
+            var inputs = new Queue<string>(simulatedInputs);
+            Func<string> inputProvider = () => inputs.Dequeue();
+
+            // Act
+            int result = menu.PriorityCatch(inputProvider, skipClear: true);
+            string output = sw.ToString();
+
+            // Assert
+            Assert.Equal(expected, result);
+            Assert.Contains("What is the bug's priority?", output);
+        }
+
+        [Theory]
+        [InlineData(new[] { "abc", "5", "0" }, 0)] // Invalid, Invalid, Valid
+        [InlineData(new[] { "-1", "9", "3" }, 3)]  // Invalid, Invalid, Valid
+        [InlineData(new[] { "1" }, 1)]            // First try valid
+        [InlineData(new[] { "2", "0", "1" }, 2)]  // First valid is 2
+        public void SeverityCatch_WithVariousInputs_ReturnsValidPriority(string[] simulatedInputs, int expected)
+        {
+            // Arrange
+            var sw = new StringWriter();
+            var menu = new BugMenuUI(sw);
+            var inputs = new Queue<string>(simulatedInputs);
+            Func<string> inputProvider = () => inputs.Dequeue();
+
+            // Act
+            int result = menu.SeverityCatch(inputProvider, skipClear: true);
+            string output = sw.ToString();
+
+            // Assert
+            Assert.Equal(expected, result);
+            Assert.Contains("What is the bug's severity?", output);
+        }
+
         #endregion
     }
 }
