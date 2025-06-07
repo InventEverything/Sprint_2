@@ -4,6 +4,7 @@
     {
         public int BugId { get; set; }
         public string Title { get; set; }
+        public string? AttachmentUrl { get; set; }
         public string Description { get; set; }
         public BugPriority Priority { get; private set; }
         public BugSeverity Severity { get; private set; }

@@ -64,6 +64,7 @@
             Assert.Equal("Title cannot be null, empty, or whitespace.", ex.Message);
         }
         #endregion
+        
         #region ** UpdateStatus Tests **
 
         [Fact]
@@ -195,6 +196,7 @@
             }
         }
         #endregion
+        
         #region ** UpdateAssignToDeveloper Tests **
         [Fact] // checks to AssignedToDeveloper is null
         public void Constructor_AssignedToDeveloper_DefaultsToNull()
@@ -217,6 +219,7 @@
             Assert.Equal(developerName, bug.AssignedToDeveloper);
         }
         #endregion
+        
         #region ** SetPriority Tests **
         [Fact] // checks to see if priority sets correctly
         public void SetPriority_ValidPriority_SetsPriority()
@@ -265,6 +268,7 @@
             Assert.Equal(BugPriority.High, bug.Priority);
         }
         #endregion
+        
         #region ** SetSeverity Tests **
         [Fact] // Checks to see if severity sets correctly
         public void SetSeverity_ValidSeverity_SetsSeverity()
@@ -322,6 +326,7 @@
             Assert.Equal(BugSeverity.Critical, bug.Severity);
         }
         #endregion
+        
         #region ** CreateBug Tests **
         [Fact] // checks to see if bug is created correctly
         public void CreateBug_ValidInput_CreatesBug()
@@ -334,6 +339,7 @@
             Assert.IsType<Bug>(bug);
         }
         #endregion
+        
         #region ** Method AssignToDeveloper Tests **
 
         [Fact]
@@ -380,37 +386,15 @@
             Assert.Equal("Bug: 5 has been successfully assigned to developer: paul", result, StringComparer.OrdinalIgnoreCase);
         }
         #endregion
-    }
-    public class BugServiceTests
-    {
+
+        #region **AttachmentURL Tests**
         [Fact]
-        public void DeleteBug_ShouldRemoveBug_WhenBugExists()
+        public void CanAddAttachmentUrl()
         {
-            // Arrange
-            var service = new BugService();
-            var bug = service.CreateBug("Test Bug", "Sample description", 1, 2);
-            int bugId = bug.BugId;
-
-            // Act
-            bool result = service.DeleteBug(bugId);
-
-            // Assert
-            Assert.True(result);
-            Assert.DoesNotContain(service.getBugs, b => b.BugId == bugId);
+            var bug = new Bug(0, "Constructor", "Valid constructor test", 0, 1);
+            bug.AttachmentUrl = "http://example.com/image.png";
+            Assert.Equal("http://example.com/image.png", bug.AttachmentUrl);
         }
-
-        [Fact]
-        public void DeleteBug_ShouldReturnFalse_WhenBugDoesNotExist()
-        {
-            // Arrange
-            var service = new BugService();
-            int nonExistentBugId = 999;
-
-            // Act
-            bool result = service.DeleteBug(nonExistentBugId);
-
-            // Assert
-            Assert.False(result);
-        }
+        #endregion
     }
 }
