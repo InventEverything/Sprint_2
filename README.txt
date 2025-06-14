@@ -1,3 +1,13 @@
+6-14-25
+Feature overview
+	StatusChangeHistory changes the bug status and documents the bug id, from status, to status, and time of change.
+Setup instructions
+	StatusChangeHistory is private and should be access through UpdateStatus method to validate the input beforehand.
+Any known edge cases or limitations
+	Because the BugTests allows multiple tests to run concurrently some tests will fail for the reason that the file is being accessed by another entity (which is one of the other tests). Running all failed tests until there are no longer any failed tests shows that all tests pass but are limited only by the number of tests that can access the file at a time.
+
+===================================================================================================================
+
 # B1-Create Bug (Fully implemented)
 # B2-View Bug List (Fully implemented)
 # B3-Assign to Developer (Started but incomplete)

@@ -156,6 +156,36 @@
         }
 
         [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        public void UpdateStatus_LogsToFile(int status)
+        {
+            // Arrange
+            var bug = new Bug(9, "StatusLogText", "Tests that log file is created and written to", 0, 1);
+            var path = Directory.GetCurrentDirectory() + @"\StatusChanges.txt";
+            switch (status)
+            {
+                case 2:
+                    // Assignes the bug status
+                    bug.UpdateStatus((BugStatus)1);
+                    break;
+                case 3:
+                    // Assignes the bug status
+                    bug.UpdateStatus((BugStatus)1);
+                    bug.UpdateStatus((BugStatus)2);
+                    break;
+            }
+            // Act
+            bug.UpdateStatus((BugStatus)status);
+            // Assert
+            Assert.Contains("Bug Id:\t9", File.ReadAllText(path));
+            Assert.Contains($"From:\t{(BugStatus)(status-1)}", File.ReadAllText(path));
+            Assert.Contains($"To:\t{(BugStatus)status}", File.ReadAllText(path));
+            Assert.Contains($"At:\t", File.ReadAllText(path));
+        }
+
+        [Theory]
         [InlineData(0)]
         [InlineData(1)]
         [InlineData(2)]

@@ -44,19 +44,19 @@
                     case BugStatus.Closed:
                         if (Status == BugStatus.InProgress || Status == BugStatus.Pending)
                         {
-                            Status = newStatus;
+                            StatusChangeHistory(newStatus);
                         }
                         break;
                     case BugStatus.InProgress:
                         if (Status == BugStatus.Open || Status == BugStatus.Pending)
                         {
-                            Status = newStatus;
+                            StatusChangeHistory(newStatus);
                         }
                         break;
                     case BugStatus.Pending:
                         if (Status == BugStatus.InProgress)
                         {
-                            Status = newStatus;
+                            StatusChangeHistory(newStatus);
                         }
                         break;
                 }
@@ -112,6 +112,23 @@
             return ($"Bug: {bug.BugId} has been successfully assigned to developer: {bug.AssignedToDeveloper}");
         }
         #endregion
+        /// <summary>
+        /// StatusChangeHistory will change the bug status and document any changes made to a status based on received parameters.
+        /// </summary>
+        /// <returns>
+        /// Writes to file "StatusChanges.txt" saved to the current working directory.
+        /// </returns>
+        /// <param name="newStatus">This is the status the original is trying to change to</param>
+        private void StatusChangeHistory(BugStatus newStatus)
+        {
+            string path = Directory.GetCurrentDirectory() + @"\StatusChanges.txt";
+            File.AppendAllText(path,
+                $"Bug Id:\t{BugId}\n" +
+                $"From:\t{Status.ToString()}\n" +
+                $"To:\t{newStatus.ToString()}\n" +
+                "At:\t" + DateTime.Now + "\n\n");
+            Status = newStatus;
+        }
 
     }
 
